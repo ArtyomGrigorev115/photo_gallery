@@ -44,11 +44,12 @@ class PhotoGalleryFragment : Fragment() {
                 Log.d(TAG, "Response received: ${response.body()}")
             }
         })*/
-        val flickrLiveData: LiveData<String> = FlickrFetchr().fetchContents()
+       // val flickrLiveData: LiveData<String> = FlickrFetchr().fetchPhotos()
+        val flickrLiveData: LiveData<List<GalleryItem>> = FlickrFetchr().fetchPhotos()
         flickrLiveData.observe(
             this,
-            Observer { responseString ->
-                Log.d(TAG, "Response received: $responseString")
+            Observer { galleryItems ->
+                Log.d(TAG, "Response received: $galleryItems")
             })
     }
 
