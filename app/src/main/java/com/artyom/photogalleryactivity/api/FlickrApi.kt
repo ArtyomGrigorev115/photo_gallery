@@ -1,7 +1,14 @@
 package com.artyom.photogalleryactivity.api
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Log
+import androidx.annotation.WorkerThread
+import okhttp3.ResponseBody
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Url
 
 interface FlickrApi {
    /* @GET("/")
@@ -15,4 +22,9 @@ interface FlickrApi {
                 "&extras=url_s"
     )
     fun fetchPhotos(): Call<FlickrResponse>
+
+    @GET
+    fun fetchUrlBytes(@Url url: String): Call<ResponseBody>
+
+
 }

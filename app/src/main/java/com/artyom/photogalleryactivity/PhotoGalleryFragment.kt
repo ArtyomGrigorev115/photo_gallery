@@ -29,10 +29,12 @@ class PhotoGalleryFragment : Fragment() {
 
     private lateinit var photoGalleryViewModel: PhotoGalleryViewModel
     private lateinit var photoRecyclerView: RecyclerView
+    private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        retainInstance = true
 
       /*  val retrofit: Retrofit = Retrofit.Builder().baseUrl("https://www.flickr.com/")
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -61,8 +63,9 @@ class PhotoGalleryFragment : Fragment() {
             Observer { galleryItems ->
                 Log.d(TAG, "Response received: $galleryItems")
             })*/
-        photoGalleryViewModel =
-            ViewModelProviders.of(this).get(PhotoGalleryViewModel::class.java)
+        photoGalleryViewModel = ViewModelProviders.of(this).get(PhotoGalleryViewModel::class.java)
+        thumbnailDownloader = ThumbnailDownloader()
+        lifecycle.addObserver(thumbnailDownloader)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -84,6 +87,14 @@ class PhotoGalleryFragment : Fragment() {
                 photoRecyclerView.adapter = PhotoAdapter(galleryItems)
             })
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycle.removeObserver(
+            thumbnailDownloader
+        )
+    }
+
     /*ViewHolder*/
     private class PhotoHolder(private val itemImageView: ImageView) : RecyclerView.ViewHolder(itemImageView) {
         val bindDrawable: (Drawable) -> Unit = itemImageView::setImageDrawable
@@ -104,6 +115,7 @@ class PhotoGalleryFragment : Fragment() {
            // holder.bindTitle(galleryItem.title)
             val placeholder: Drawable = ContextCompat.getDrawable(requireContext(), R.drawable.bill_up_close) ?: ColorDrawable()
             holder.bindDrawable(placeholder)
+            thumbnailDownloader.queueThumbnail(holder, galleryItem.url)
         }
 
         override fun getItemCount(): Int = galleryItems.size
